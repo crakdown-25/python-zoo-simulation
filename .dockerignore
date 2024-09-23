@@ -1,2 +1,5 @@
-notes.txt
+logbook.txt
 .git
+.mypy_cache
+.pytest_cache
+.gitignore
