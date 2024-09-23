@@ -67,3 +67,10 @@ About the order of the event in do_actions :
 - Second, we grow old the Animal/Plant
 - Third, if Animal/Plant is always alive, we reduce his PV
 - Fourth, .... the other processes (eating if PV <= 5 for animal, adding 1 PV by day for Plant)
+
+To obtain reproducible behavior, during automatics tests, we set class variable testing_mode to True in order to create every LivingEntity with a
+specific age.
+When script is launched "in production", LivingEntity's age will be random (between MIN_AGE_FOR_ENTITY_ADDED and MAX_AGE_FOR_ENTITY_ADDED)
+
+Update automatic tests
+Adding tests about age managment

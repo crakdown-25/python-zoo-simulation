@@ -241,3 +241,28 @@ class TestLivingEntity:
         assert plant.age == STANDARD_AGE_FOR_TEST, f'plant.age must be {STANDARD_AGE_FOR_TEST}'
         assert lion2.age == 4, 'Lion2.age must be 4'
         assert plant2.age == 8, 'plant.age must be 8'
+
+    # Test grow old of Animal/Plant
+    def test_grow_old(self):
+        lion2 = Lion("lion2", Sex.MALE, age=4)
+        plant2 = Plant(age=8)
+
+        lion2.do_actions([])
+        plant2.do_actions([])
+
+        assert lion2.age == 5, 'Lion2.age must be 5'
+        assert plant2.age == 9, 'plant.age must be 9'
+
+    # Test grow old until death for Animal/Plant
+    def test_grow_old_to_death(self):
+        lion2 = Lion("lion2", Sex.MALE, age=19)
+        plant2 = Plant(age=19)
+
+        assert lion2.is_alive, "pion2 must be alive"
+        assert plant2.is_alive, "plant2 must be alive"
+
+        lion2.do_actions([])
+        plant2.do_actions([])
+
+        assert not lion2.is_alive, "pion2 musn't be alive"
+        assert not plant2.is_alive, "plant2 musn't be alive"
