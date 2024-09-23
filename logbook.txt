@@ -57,3 +57,13 @@ Display PV in __repr__
 
 Update automatic tests
 Adding one test about PV evolution during eating
+
+## Story #5
+
+Adding constants to store MIN, MAX age of living entity added
+Adding grow_old method in LivingEntity that will be called from do_actions.
+About the order of the event in do_actions : 
+- First, we check if Animal/Plant is alive
+- Second, we grow old the Animal/Plant
+- Third, if Animal/Plant is always alive, we reduce his PV
+- Fourth, .... the other processes (eating if PV <= 5 for animal, adding 1 PV by day for Plant)

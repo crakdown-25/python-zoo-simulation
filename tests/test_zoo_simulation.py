@@ -1,7 +1,16 @@
+from zoo_simulation.living_entity import LivingEntity, STANDARD_AGE_FOR_TEST
 import zoo_simulation.paddock as simuation_paddock
 
 
 class TestZooSimulation:
+
+    # Setup method (will be called before running tests)
+    def setup_class(cls):
+        LivingEntity.testing_mode = True
+
+    # Teaddown methode (will be called at tests end)
+    def teardown_class(cls):
+        LivingEntity.testing_mode = False
 
     # Test Paddock initialization (whith blank input)
     def test_empty_initialization(self):
@@ -54,7 +63,7 @@ class TestZooSimulation:
         paddock = simuation_paddock.Paddock()
         paddock.initialization()
         report = paddock.create_report()
-        assert report == """Plant(s)\n1❤️\n0💀\nAnimal(s):\n\t🦁 Lion lion1 ♂️ PV 10 ❤️\n---------------\n"""
+        assert report == f"""Plant(s)\n1❤️\n0💀\nAnimal(s):\n\t🦁 Lion lion1 ♂️ PV 10 Age {STANDARD_AGE_FOR_TEST} ❤️\n---------------\n"""
 
     # Test Paddock initialization (whith four plants, one tiger and one elephant)
     def test_four_plants_one_tiger_one_elephant_initialization(self):
@@ -67,7 +76,7 @@ class TestZooSimulation:
         paddock = simuation_paddock.Paddock()
         paddock.initialization()
         report = paddock.create_report()
-        assert report == """Plant(s)\n4❤️\n0💀\nAnimal(s):\n\t🐅 Tiger woods ♂️ PV 10 ❤️\n\t🐘 Elephant Céleste ♀️ PV 10 ❤️\n---------------\n"""
+        assert report == f"""Plant(s)\n4❤️\n0💀\nAnimal(s):\n\t🐅 Tiger woods ♂️ PV 10 Age {STANDARD_AGE_FOR_TEST} ❤️\n\t🐘 Elephant Céleste ♀️ PV 10 Age {STANDARD_AGE_FOR_TEST} ❤️\n---------------\n"""
 
     # Test Paddock initialization (whith four plants, one tiger and one elephant)
     def test_one_plant_and_one_coyote_one_giraffe_initialization(self):
@@ -80,7 +89,7 @@ class TestZooSimulation:
         paddock = simuation_paddock.Paddock()
         paddock.initialization()
         report = paddock.create_report()
-        assert report == """Plant(s)\n1❤️\n0💀\nAnimal(s):\n\t🦊 Coyote vil_coyote ♂️ PV 10 ❤️\n\t🦒 Giraffe Sophie ♀️ PV 10 ❤️\n---------------\n"""
+        assert report == f"""Plant(s)\n1❤️\n0💀\nAnimal(s):\n\t🦊 Coyote vil_coyote ♂️ PV 10 Age {STANDARD_AGE_FOR_TEST} ❤️\n\t🦒 Giraffe Sophie ♀️ PV 10 Age {STANDARD_AGE_FOR_TEST} ❤️\n---------------\n"""
 
     # Test Paddock initialization (whith two plants, two antelopes)
     def test_two_plants_and_two_antelopes_initialization(self):
@@ -93,4 +102,4 @@ class TestZooSimulation:
         paddock = simuation_paddock.Paddock()
         paddock.initialization()
         report = paddock.create_report()
-        assert report == """Plant(s)\n2❤️\n0💀\nAnimal(s):\n\t𓃴 Antelope Jean ♂️ PV 10 ❤️\n\t𓃴 Antelope Marie ♀️ PV 10 ❤️\n---------------\n"""
+        assert report == f"""Plant(s)\n2❤️\n0💀\nAnimal(s):\n\t𓃴 Antelope Jean ♂️ PV 10 Age {STANDARD_AGE_FOR_TEST} ❤️\n\t𓃴 Antelope Marie ♀️ PV 10 Age {STANDARD_AGE_FOR_TEST} ❤️\n---------------\n"""

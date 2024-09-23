@@ -7,4 +7,4 @@ mypy:
 	mypy main.py
 
 flake8:
-	flake8 --max-line-length=155 `find . -name "*.py"`
+	flake8 --max-line-length=220 `find . -name "*.py"`

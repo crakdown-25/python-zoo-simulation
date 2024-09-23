@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from random import shuffle
+from random import shuffle, randint
 
 PV_LOSTS_ANIMAL_BY_DAY = 1
 PV_LOSTS_ANIMAL_WHEN_EATEN = 4
@@ -11,6 +11,11 @@ LIMIT_PV_BEFORE_EATEN = 5
 PV_OBTAINED_PLANT_BY_DAY = 1
 PV_LOSTS_PLANT_WHEN_EATEN = 2
 PV_OBTAINED_HERBIVORE_BY_PLANT = 3
+
+MIN_AGE_FOR_ENTITY_ADDED = 0
+MAX_AGE_FOR_ENTITY_ADDED = 19
+DEATHING_AGE_IN_DEAY = 20
+STANDARD_AGE_FOR_TEST = 12
 
 
 class Sex(Enum):
@@ -30,9 +35,14 @@ class LivingEntity(ABC):
     Attributes
     ----------
     _is_alive : True if LivingEntity is alive, False is LivingEntity is dead
+    _life_point : Number of life point (PV) for this LivingEntity
+    _age : LivingEntity age
 
     Methods
     -------
+    grow_old(self):
+        Method called when the LivingEntity grow_old
+
     __repr__(self):
         Abstact method (need to be implemented in subclasses)
 
@@ -45,6 +55,9 @@ class LivingEntity(ABC):
     life_point:
         Getter for _life_point attribute
 
+    age:
+        Getter for _age attribute
+
     gets_eaten(self):
         Method called when the LivingEntity has been eaten. Return PV to add to eater
         (need to be implemented in subclasses)
@@ -52,13 +65,26 @@ class LivingEntity(ABC):
     check_PV(self):
         Return True is _life_point is >1, False otherwise (in this case self._is_alive is set to False too)
     """
+    testing_mode = False  # Class variable we set to True (during test) to obtain reproducible behaviors
 
-    def __init__(self) -> None:
+    def __init__(self, age) -> None:
         """
-        Empty constructor for LivingEntity
+        Constructor for LivingEntity
         """
         self._is_alive = True
         self._life_point = 10
+        if age:
+            self._age = age
+        else:
+            self._age = STANDARD_AGE_FOR_TEST if self.testing_mode else randint(MIN_AGE_FOR_ENTITY_ADDED, MAX_AGE_FOR_ENTITY_ADDED)
+
+    def grow_old(self) -> None:
+        """
+        Method called when the LivingEntity grow_old. If LivingEntity's age >= DEATHING_AGE_IN_DEAY, the LivingEntity will dead
+        """
+        self._age += 1
+        if self._age >= DEATHING_AGE_IN_DEAY:
+            self._is_alive = False
 
     @abstractmethod
     def __repr__(self) -> str:
@@ -89,6 +115,13 @@ class LivingEntity(ABC):
         Getter for _life_point attribute
         """
         return self._life_point
+
+    @property
+    def age(self):
+        """
+        Getter for _age attribute
+        """
+        return self._age
 
     @abstractmethod
     def gets_eaten(self) -> int:
@@ -137,7 +170,7 @@ class Animal(LivingEntity):
         Method to allow animal to eat (need to be implemented in subclasses)
     """
 
-    def __init__(self, name: str, sex: Sex) -> None:
+    def __init__(self, name: str, sex: Sex, age=None) -> None:
         """
         Construct all the necessary attributes for the animal object.
 
@@ -148,7 +181,7 @@ class Animal(LivingEntity):
             sex : Sex (MALE/FEMALE)
                 sex of the animal
         """
-        super().__init__()
+        super().__init__(age=age)
         self.name = name
         self.sex = sex
 
@@ -156,7 +189,7 @@ class Animal(LivingEntity):
         """
         Return a string representation of the animal
         """
-        return f'{self.__class__.__name__} {self.name} {"♂️" if self.sex == Sex.MALE else "♀️"} PV {self._life_point} {"❤️" if self.is_alive else "💀"}'
+        return f'{self.__class__.__name__} {self.name} {"♂️" if self.sex == Sex.MALE else "♀️"} PV {self._life_point} Age {self._age} {"❤️" if self.is_alive else "💀"}'
 
     def do_actions(self, other_living_entity) -> None:
         """
@@ -164,24 +197,28 @@ class Animal(LivingEntity):
         """
         # Only if the animal is alive
         if self.is_alive:
-            # First, the animal losts PV_LOSTS_ANIMAL_BY_DAY (1) PV
-            self._life_point -= PV_LOSTS_ANIMAL_BY_DAY
-            # Check PV and continue process only if animal is alive
-            if self.check_PV():
-                if self._life_point <= LIMIT_PV_BEFORE_EATEN:
+            # First, the animal grow old
+            self.grow_old()
+            # If the animal is always alive
+            if self.is_alive:
+                # First, the animal losts PV_LOSTS_ANIMAL_BY_DAY (1) PV
+                self._life_point -= PV_LOSTS_ANIMAL_BY_DAY
+                # Check PV and continue process only if animal is alive
+                if self.check_PV():
+                    if self._life_point <= LIMIT_PV_BEFORE_EATEN:
 
-                    # The animal needs to eat a plant or an another animal
-                    living_entities = [le for le in other_living_entity if le.is_alive]
-                    shuffle(living_entities)
-                    has_already_eaten = False
-                    while not has_already_eaten and len(living_entities):
-                        another_living_entity = living_entities.pop()
-                        if self.can_eat(another_living_entity):
-                            self.eat(another_living_entity)
-                            has_already_eaten = True
+                        # The animal needs to eat a plant or an another animal
+                        living_entities = [le for le in other_living_entity if le.is_alive]
+                        shuffle(living_entities)
+                        has_already_eaten = False
+                        while not has_already_eaten and len(living_entities):
+                            another_living_entity = living_entities.pop()
+                            if self.can_eat(another_living_entity):
+                                self.eat(another_living_entity)
+                                has_already_eaten = True
 
-                    if not has_already_eaten:
-                        print(f"{self} couldn't eat :'(")
+                        if not has_already_eaten:
+                            print(f"{self} couldn't eat :'(")
 
     @abstractmethod
     def can_eat(self, other_living_entity) -> bool:
@@ -621,19 +658,23 @@ class Plant(LivingEntity):
         Method called when the Plant has been eaten. Return PV to add to eater
 
     """
-    def __init__(self) -> None:
+    def __init__(self, age=None) -> None:
         """
         Construct all the necessary attributes for the Plant object.
         """
-        super().__init__()
+        super().__init__(age=age)
 
     def do_actions(self, other_living_entity) -> None:
         """
         Do action(s) for the current Plant
         """
         if self.is_alive:
-            # Plant get PV_OBTAINED_PLANT_BY_DAY (1) PV per day
-            self._life_point += PV_OBTAINED_PLANT_BY_DAY
+            # Plant grow old
+            self.grow_old()
+            # If plant is always alive
+            if self.is_alive:
+                # Plant get PV_OBTAINED_PLANT_BY_DAY (1) PV per day
+                self._life_point += PV_OBTAINED_PLANT_BY_DAY
 
     def gets_eaten(self) -> int:
         """
@@ -647,4 +688,4 @@ class Plant(LivingEntity):
         """
         Return a string
         """
-        return f"""🌿 Plant PV {self._life_point} {"❤️" if self.is_alive else "💀"}"""
+        return f"""🌿 Plant PV {self._life_point} Age {self._age} {"❤️" if self.is_alive else "💀"}"""
