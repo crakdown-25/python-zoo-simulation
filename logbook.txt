@@ -12,3 +12,16 @@ In the same reasoning, I write a run_simulation method in paddock class.
 
 To allow pytest check for simulation output, I create a create_report method in Paddock. This method return the report into a string.
 During execution (not in testing mode), and_one_more_day method call create_report and print the result on the standard output.
+
+## Story #2
+
+I create Carnivorous, Herbivore abstract classes and Lion/Tiger/Coyote/Elephant/Giraffe/Antelope classes to hold biodiversity informations.
+I also add two new methods :
+- can_eat method to check if LivingEntity can eat other LivingEntity
+- eat method to really do the eat action
+
+Paddock.initialization method has been updated to allow Lion/Tiger/Coyote/Elephant/Giraffe/Antelope addition.
+Adding specific error message in Paddock.run_simulation method when user enter negativ integer or to big integer (1095).
+
+Merge instantiation and representation tests into one only test
+Adding a lot of tests to cover all part of the code
