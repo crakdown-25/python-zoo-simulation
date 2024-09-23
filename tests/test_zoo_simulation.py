@@ -14,7 +14,7 @@ class TestZooSimulation:
         paddock = simuation_paddock.Paddock()
         paddock.initialization()
         report = paddock.create_report()
-        assert report == """Number of plant(s) 0\nAnimal(s):\n---------------\n"""
+        assert report == """Plant(s)\n0❤️\n0💀\nAnimal(s):\n---------------\n"""
 
     # Test Paddock initialization (whith one plant)
     def test_one_plant_initialization(self):
@@ -28,7 +28,7 @@ class TestZooSimulation:
         paddock.initialization()
         report = paddock.create_report()
         print(report)
-        assert report == """Number of plant(s) 1\nAnimal(s):\n---------------\n"""
+        assert report == """Plant(s)\n1❤️\n0💀\nAnimal(s):\n---------------\n"""
 
     # Test Paddock initialization (whith several plants)
     def test_five_plant_initialization(self):
@@ -41,7 +41,7 @@ class TestZooSimulation:
         paddock = simuation_paddock.Paddock()
         paddock.initialization()
         report = paddock.create_report()
-        assert report == """Number of plant(s) 5\nAnimal(s):\n---------------\n"""
+        assert report == """Plant(s)\n5❤️\n0💀\nAnimal(s):\n---------------\n"""
 
     # Test Paddock initialization (whith one plant and one lion)
     def test_one_plant_and_one_lion_initialization(self):
@@ -54,7 +54,7 @@ class TestZooSimulation:
         paddock = simuation_paddock.Paddock()
         paddock.initialization()
         report = paddock.create_report()
-        assert report == """Number of plant(s) 1\nAnimal(s):\n\t🦁 Lion lion1 ♂️\n---------------\n"""
+        assert report == """Plant(s)\n1❤️\n0💀\nAnimal(s):\n\t🦁 Lion lion1 ♂️ ❤️\n---------------\n"""
 
     # Test Paddock initialization (whith four plants, one tiger and one elephant)
     def test_four_plants_one_tiger_one_elephant_initialization(self):
@@ -67,7 +67,7 @@ class TestZooSimulation:
         paddock = simuation_paddock.Paddock()
         paddock.initialization()
         report = paddock.create_report()
-        assert report == """Number of plant(s) 4\nAnimal(s):\n\t🐅 Tiger woods ♂️\n\t🐘 Elephant Céleste ♀️\n---------------\n"""
+        assert report == """Plant(s)\n4❤️\n0💀\nAnimal(s):\n\t🐅 Tiger woods ♂️ ❤️\n\t🐘 Elephant Céleste ♀️ ❤️\n---------------\n"""
 
     # Test Paddock initialization (whith four plants, one tiger and one elephant)
     def test_one_plant_and_one_coyote_one_giraffe_initialization(self):
@@ -80,7 +80,7 @@ class TestZooSimulation:
         paddock = simuation_paddock.Paddock()
         paddock.initialization()
         report = paddock.create_report()
-        assert report == """Number of plant(s) 1\nAnimal(s):\n\t🦊 Coyote vil_coyote ♂️\n\t🦒 Giraffe Sophie ♀️\n---------------\n"""
+        assert report == """Plant(s)\n1❤️\n0💀\nAnimal(s):\n\t🦊 Coyote vil_coyote ♂️ ❤️\n\t🦒 Giraffe Sophie ♀️ ❤️\n---------------\n"""
 
     # Test Paddock initialization (whith two plants, two antelopes)
     def test_two_plants_and_two_antelopes_initialization(self):
@@ -93,4 +93,4 @@ class TestZooSimulation:
         paddock = simuation_paddock.Paddock()
         paddock.initialization()
         report = paddock.create_report()
-        assert report == """Number of plant(s) 2\nAnimal(s):\n\t𓃴 Antelope Jean ♂️\n\t𓃴 Antelope Marie ♀️\n---------------\n"""
+        assert report == """Plant(s)\n2❤️\n0💀\nAnimal(s):\n\t𓃴 Antelope Jean ♂️ ❤️\n\t𓃴 Antelope Marie ♀️ ❤️\n---------------\n"""

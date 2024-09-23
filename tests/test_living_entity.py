@@ -11,7 +11,7 @@ class TestLivingEntity:
             _ = LivingEntity()
             assert False, "abstract class LivingEntity musn't be instantiable"
         except TypeError as e:
-            assert str(e) == "Can't instantiate abstract class LivingEntity with abstract method __repr__"
+            assert str(e) == "Can't instantiate abstract class LivingEntity with abstract methods __repr__, do_actions"
         except Exception:
             assert False, "wrong exception type (need to be TypeError)"
 
@@ -21,7 +21,7 @@ class TestLivingEntity:
             _ = Animal()
             assert False, "abstract class Animal musn't be instantiable"
         except TypeError as e:
-            assert str(e) == "Can't instantiate abstract class Animal with abstract methods can_eat, eat"
+            assert str(e) == "Can't instantiate abstract class Animal with abstract method can_eat"
         except Exception:
             assert False, "wrong exception type (need to be TypeError)"
 
@@ -31,7 +31,7 @@ class TestLivingEntity:
             _ = Carnivorous()
             assert False, "abstract class Carnivorous musn't be instantiable"
         except TypeError as e:
-            assert str(e) == "Can't instantiate abstract class Carnivorous with abstract method eat"
+            assert str(e) == "Can't instantiate abstract class Carnivorous with abstract method can_eat"
         except Exception:
             assert False, "wrong exception type (need to be TypeError)"
 
@@ -41,7 +41,7 @@ class TestLivingEntity:
             _ = Herbivore()
             assert False, "abstract class Herbivore musn't be instantiable"
         except TypeError as e:
-            assert str(e) == "Can't instantiate abstract class Herbivore with abstract method eat"
+            assert str(e) == "Can't instantiate abstract class Herbivore with abstract method can_eat"
         except Exception:
             assert False, "wrong exception type (need to be TypeError)"
 
@@ -58,13 +58,13 @@ class TestLivingEntity:
             lion1 = Lion("lion1", Sex.MALE)
         except Exception:
             assert False, "Exception during Lion instantiation"
-        assert str(lion1) == '🦁 Lion lion1 ♂️'
+        assert str(lion1) == '🦁 Lion lion1 ♂️ ❤️'
 
         try:
             lion2 = Lion("lion2", Sex.FEMALE)
         except Exception:
             assert False, "Exception during Lion instantiation"
-        assert str(lion2) == '🦁 Lion lion2 ♀️'
+        assert str(lion2) == '🦁 Lion lion2 ♀️ ❤️'
 
     # Test we can create an object of Tiger class (check representation too)
     def test_tiger_instantiation_representation(self):
@@ -72,13 +72,13 @@ class TestLivingEntity:
             tiger1 = Tiger("woods", Sex.MALE)
         except Exception:
             assert False, "Exception during Tiger instantiation"
-        assert str(tiger1) == '🐅 Tiger woods ♂️'
+        assert str(tiger1) == '🐅 Tiger woods ♂️ ❤️'
 
         try:
             tiger2 = Tiger("tiger2", Sex.FEMALE)
         except Exception:
             assert False, "Exception during Tiger instantiation"
-        assert str(tiger2) == '🐅 Tiger tiger2 ♀️'
+        assert str(tiger2) == '🐅 Tiger tiger2 ♀️ ❤️'
 
     # Test we can create an object of Coyote class (check representation too)
     def test_coyote_instantiation_representation(self):
@@ -86,13 +86,13 @@ class TestLivingEntity:
             coyote1 = Coyote("coyote1", Sex.MALE)
         except Exception:
             assert False, "Exception during Coyote instantiation"
-        assert str(coyote1) == '🦊 Coyote coyote1 ♂️'
+        assert str(coyote1) == '🦊 Coyote coyote1 ♂️ ❤️'
 
         try:
             coyote2 = Coyote("coyote2", Sex.FEMALE)
         except Exception:
             assert False, "Exception during Coyote instantiation"
-        assert str(coyote2) == '🦊 Coyote coyote2 ♀️'
+        assert str(coyote2) == '🦊 Coyote coyote2 ♀️ ❤️'
 
     # Test we can create an object of Elephant class (check representation too)
     def test_elephant_instantiation_representation(self):
@@ -100,13 +100,13 @@ class TestLivingEntity:
             elephant1 = Elephant("elephant1", Sex.MALE)
         except Exception:
             assert False, "Exception during Elephant instantiation"
-        assert str(elephant1) == '🐘 Elephant elephant1 ♂️'
+        assert str(elephant1) == '🐘 Elephant elephant1 ♂️ ❤️'
 
         try:
             elephant2 = Elephant("elephant2", Sex.FEMALE)
         except Exception:
             assert False, "Exception during Elephant instantiation"
-        assert str(elephant2) == '🐘 Elephant elephant2 ♀️'
+        assert str(elephant2) == '🐘 Elephant elephant2 ♀️ ❤️'
 
     # Test we can create an object of Giraffe class (check representation too)
     def test_giraffe_instantiation_representation(self):
@@ -114,13 +114,13 @@ class TestLivingEntity:
             giraffe1 = Giraffe("giraffe1", Sex.MALE)
         except Exception:
             assert False, "Exception during Giraffe instantiation"
-        assert str(giraffe1) == '🦒 Giraffe giraffe1 ♂️'
+        assert str(giraffe1) == '🦒 Giraffe giraffe1 ♂️ ❤️'
 
         try:
             giraffe2 = Giraffe("giraffe2", Sex.FEMALE)
         except Exception:
             assert False, "Exception during Giraffe instantiation"
-        assert str(giraffe2) == '🦒 Giraffe giraffe2 ♀️'
+        assert str(giraffe2) == '🦒 Giraffe giraffe2 ♀️ ❤️'
 
     # Test we can create an object of Antelope class (check representation too)
     def test_antelope_instantiation_representation(self):
@@ -128,10 +128,78 @@ class TestLivingEntity:
             antelope1 = Antelope("antelope1", Sex.MALE)
         except Exception:
             assert False, "Exception during Antelope instantiation"
-        assert str(antelope1) == '𓃴 Antelope antelope1 ♂️'
+        assert str(antelope1) == '𓃴 Antelope antelope1 ♂️ ❤️'
 
         try:
             antelope2 = Antelope("antelope2", Sex.FEMALE)
         except Exception:
             assert False, "Exception during Antelope instantiation"
-        assert str(antelope2) == '𓃴 Antelope antelope2 ♀️'
+        assert str(antelope2) == '𓃴 Antelope antelope2 ♀️ ❤️'
+
+    # Test an animal cannot eat himself
+    def test_animal_non_autophagy(self):
+        antelope1 = Antelope("antelope1", Sex.MALE)
+        giraffe1 = Giraffe("giraffe1", Sex.MALE)
+        elephant1 = Elephant("elephant1", Sex.MALE)
+        coyote1 = Coyote("coyote1", Sex.MALE)
+        tiger1 = Tiger("woods", Sex.MALE)
+        lion1 = Lion("lion1", Sex.MALE)
+
+        assert not antelope1.can_eat(antelope1), "Antelope musn't eat himself"
+        assert not giraffe1.can_eat(giraffe1), "Giraffe musn't eat himself"
+        assert not elephant1.can_eat(elephant1), "Elephant musn't eat himself"
+        assert not coyote1.can_eat(coyote1), "Coyote musn't eat himself"
+        assert not tiger1.can_eat(tiger1), "Tiger musn't eat himself"
+        assert not lion1.can_eat(lion1), "Lion musn't eat himself"
+
+    # Test an animal cannot eat another animal with the same species
+    def test_animal_cannot_eat_same_species(self):
+        antelope1 = Antelope("antelope1", Sex.MALE)
+        antelope2 = Antelope("antelope2", Sex.MALE)
+        giraffe1 = Giraffe("giraffe1", Sex.MALE)
+        giraffe2 = Giraffe("giraffe2", Sex.MALE)
+        elephant1 = Elephant("elephant1", Sex.MALE)
+        elephant2 = Elephant("elephant1", Sex.MALE)
+        coyote1 = Coyote("coyote1", Sex.MALE)
+        coyote2 = Coyote("coyote2", Sex.MALE)
+        tiger1 = Tiger("woods", Sex.MALE)
+        tiger2 = Tiger("woods2", Sex.MALE)
+        lion1 = Lion("lion1", Sex.MALE)
+        lion2 = Lion("lion2", Sex.MALE)
+
+        assert not antelope1.can_eat(antelope2), "Antelope musn't eat another Antelope"
+        assert not giraffe1.can_eat(giraffe2), "Giraffe musn't eat another Giraffe"
+        assert not elephant1.can_eat(elephant2), "Elephant musn't eat another Elephant"
+        assert not coyote1.can_eat(coyote2), "Coyote musn't eat another Coyote"
+        assert not tiger1.can_eat(tiger2), "Tiger musn't eat another Tiger"
+        assert not lion1.can_eat(lion2), "Lion musn't eat another Lion"
+
+    # Test an animal cannot eat dead animal / plant
+    def test_animal_cannot_eat_dead_entity(self):
+        antelope1 = Antelope("antelope1", Sex.MALE)
+        antelope2 = Antelope("antelope2", Sex.MALE)
+        antelope2._is_alive = False
+        giraffe1 = Giraffe("giraffe1", Sex.MALE)
+        giraffe2 = Giraffe("giraffe2", Sex.MALE)
+        giraffe2._is_alive = False
+        elephant1 = Elephant("elephant1", Sex.MALE)
+        elephant2 = Elephant("elephant1", Sex.MALE)
+        elephant2._is_alive = False
+        coyote1 = Coyote("coyote1", Sex.MALE)
+        coyote2 = Coyote("coyote2", Sex.MALE)
+        coyote2._is_alive = False
+        tiger1 = Tiger("woods", Sex.MALE)
+        tiger2 = Tiger("woods2", Sex.MALE)
+        tiger2._is_alive = False
+        lion1 = Lion("lion1", Sex.MALE)
+        lion2 = Lion("lion2", Sex.MALE)
+        lion2._is_alive = False
+        plant = Plant()
+        plant._is_alive = False
+
+        assert not antelope1.can_eat(plant), "Antelope musn't eat dead Plant"
+        assert not giraffe1.can_eat(plant), "Giraffe musn't eat dead Plant"
+        assert not elephant1.can_eat(plant), "Elephant musn't eat dead Plant"
+        assert not coyote1.can_eat(antelope2), "Coyote musn't eat dead Antelope"
+        assert not tiger1.can_eat(lion2), "Tiger musn't eat dead Lion"
+        assert not lion1.can_eat(elephant2), "Lion musn't eat dead Elephant"

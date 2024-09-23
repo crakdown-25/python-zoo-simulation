@@ -25,3 +25,23 @@ Adding specific error message in Paddock.run_simulation method when user enter n
 
 Merge instantiation and representation tests into one only test
 Adding a lot of tests to cover all part of the code
+
+## Story #3
+
+Adding _is_alive attribute in LivingEntity. This attribute will be get using property is_alive (I prefer to old an information instead of remove eaten LivingEntity 
+because in the next story we will introduce life point).
+Adding gets_eaten method in LivingEntity. This method will be call when the current LivingEntity will be eaten by another LivingEntity
+Change organization for eat method (that is now in Animal abstract class)
+can_eat method is now define in all standard (not abstract) classes
+
+Even if story doesn't give this information, I add an additional test in can_eat method to check if other_living_entity is alive
+
+Update __repr__ method in Animal and Plant class to add emoji about is_alive information
+
+Adding do_actions method in LivingEntity (abstract method). The method is implemented in Animal and Plant classes
+
+Change line for Plant in create_report method (in order to count dead/alive plant separately)
+
+Improve unit tests to manage dead/alive emoji in __repr__
+
+Adding 3 tests to check non autophagy / animal cannot eat same species / animal cannot eat dead entity

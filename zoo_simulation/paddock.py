@@ -80,7 +80,9 @@ class Paddock():
         -------
         None
         """
-        # No action for the moment
+        # Since story #3, we have to manage actions in the paddock
+        for living_entities in self.lst_living_entity:
+            living_entities.do_actions(self.lst_living_entity)
 
         # Then display the report
         print(self.create_report())
@@ -93,7 +95,10 @@ class Paddock():
         -------
         A string containing the report
         """
-        ret = (f"Number of plant(s) {len( [le for le in self.lst_living_entity if isinstance(le, Plant) ])}\n")
+
+        alive_plants = [le for le in self.lst_living_entity if isinstance(le, Plant) and le.is_alive]
+        dead_plants = [le for le in self.lst_living_entity if isinstance(le, Plant) and not le.is_alive]
+        ret = (f"Plant(s)\n{len(alive_plants)}❤️\n{len(dead_plants)}💀\n")
 
         ret += "Animal(s):\n"
         for animal in [le for le in self.lst_living_entity if isinstance(le, Animal)]:
