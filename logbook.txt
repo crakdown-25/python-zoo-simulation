@@ -1,0 +1,14 @@
+# Zoo Simulation LogBook
+
+## Story #1
+
+To store informations about Plants/Animals, I wanted to use dataclass structure first but after a little more reflexion, I prefer
+to create an abstract class that will be heritated by Plant and Animal classes
+
+Even if the US1 doesn't ask to implement an initialization method in paddock, I think it's a good idea to write an initialization method
+into the paddock class
+
+In the same reasoning, I write a run_simulation method in paddock class.
+
+To allow pytest check for simulation output, I create a create_report method in Paddock. This method return the report into a string.
+During execution (not in testing mode), and_one_more_day method call create_report and print the result on the standard output.
