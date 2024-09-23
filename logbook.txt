@@ -45,3 +45,15 @@ Change line for Plant in create_report method (in order to count dead/alive plan
 Improve unit tests to manage dead/alive emoji in __repr__
 
 Adding 3 tests to check non autophagy / animal cannot eat same species / animal cannot eat dead entity
+
+## Story #4
+
+Adding _life_point attribute in LivingEntity. This attribute will be get using property life_point. 
+Adding check_PV(self) -> bool in LivingEntity. This method return a bool and update _is_alive attribute is needed (_life_point <=0 )
+Update do_actions method in Animal / Plant classes
+
+Adding constants to store integer about LV gained/losted during animal/plant eating
+Display PV in __repr__
+
+Update automatic tests
+Adding one test about PV evolution during eating

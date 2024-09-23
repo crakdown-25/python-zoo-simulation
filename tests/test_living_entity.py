@@ -1,6 +1,8 @@
 from zoo_simulation.living_entity import LivingEntity, Plant, Animal, Sex
 from zoo_simulation.living_entity import Carnivorous, Herbivore
 from zoo_simulation.living_entity import Lion, Tiger, Coyote, Elephant, Giraffe, Antelope
+from zoo_simulation.living_entity import PV_LOSTS_ANIMAL_WHEN_EATEN, PV_OBTAINED_CARNIVOROUS_BY_ANIMAL
+from zoo_simulation.living_entity import PV_LOSTS_PLANT_WHEN_EATEN, PV_OBTAINED_HERBIVORE_BY_PLANT
 
 
 class TestLivingEntity:
@@ -11,7 +13,7 @@ class TestLivingEntity:
             _ = LivingEntity()
             assert False, "abstract class LivingEntity musn't be instantiable"
         except TypeError as e:
-            assert str(e) == "Can't instantiate abstract class LivingEntity with abstract methods __repr__, do_actions"
+            assert str(e) == "Can't instantiate abstract class LivingEntity with abstract methods __repr__, do_actions, gets_eaten"
         except Exception:
             assert False, "wrong exception type (need to be TypeError)"
 
@@ -58,13 +60,13 @@ class TestLivingEntity:
             lion1 = Lion("lion1", Sex.MALE)
         except Exception:
             assert False, "Exception during Lion instantiation"
-        assert str(lion1) == '🦁 Lion lion1 ♂️ ❤️'
+        assert str(lion1) == '🦁 Lion lion1 ♂️ PV 10 ❤️'
 
         try:
             lion2 = Lion("lion2", Sex.FEMALE)
         except Exception:
             assert False, "Exception during Lion instantiation"
-        assert str(lion2) == '🦁 Lion lion2 ♀️ ❤️'
+        assert str(lion2) == '🦁 Lion lion2 ♀️ PV 10 ❤️'
 
     # Test we can create an object of Tiger class (check representation too)
     def test_tiger_instantiation_representation(self):
@@ -72,13 +74,13 @@ class TestLivingEntity:
             tiger1 = Tiger("woods", Sex.MALE)
         except Exception:
             assert False, "Exception during Tiger instantiation"
-        assert str(tiger1) == '🐅 Tiger woods ♂️ ❤️'
+        assert str(tiger1) == '🐅 Tiger woods ♂️ PV 10 ❤️'
 
         try:
             tiger2 = Tiger("tiger2", Sex.FEMALE)
         except Exception:
             assert False, "Exception during Tiger instantiation"
-        assert str(tiger2) == '🐅 Tiger tiger2 ♀️ ❤️'
+        assert str(tiger2) == '🐅 Tiger tiger2 ♀️ PV 10 ❤️'
 
     # Test we can create an object of Coyote class (check representation too)
     def test_coyote_instantiation_representation(self):
@@ -86,13 +88,13 @@ class TestLivingEntity:
             coyote1 = Coyote("coyote1", Sex.MALE)
         except Exception:
             assert False, "Exception during Coyote instantiation"
-        assert str(coyote1) == '🦊 Coyote coyote1 ♂️ ❤️'
+        assert str(coyote1) == '🦊 Coyote coyote1 ♂️ PV 10 ❤️'
 
         try:
             coyote2 = Coyote("coyote2", Sex.FEMALE)
         except Exception:
             assert False, "Exception during Coyote instantiation"
-        assert str(coyote2) == '🦊 Coyote coyote2 ♀️ ❤️'
+        assert str(coyote2) == '🦊 Coyote coyote2 ♀️ PV 10 ❤️'
 
     # Test we can create an object of Elephant class (check representation too)
     def test_elephant_instantiation_representation(self):
@@ -100,13 +102,13 @@ class TestLivingEntity:
             elephant1 = Elephant("elephant1", Sex.MALE)
         except Exception:
             assert False, "Exception during Elephant instantiation"
-        assert str(elephant1) == '🐘 Elephant elephant1 ♂️ ❤️'
+        assert str(elephant1) == '🐘 Elephant elephant1 ♂️ PV 10 ❤️'
 
         try:
             elephant2 = Elephant("elephant2", Sex.FEMALE)
         except Exception:
             assert False, "Exception during Elephant instantiation"
-        assert str(elephant2) == '🐘 Elephant elephant2 ♀️ ❤️'
+        assert str(elephant2) == '🐘 Elephant elephant2 ♀️ PV 10 ❤️'
 
     # Test we can create an object of Giraffe class (check representation too)
     def test_giraffe_instantiation_representation(self):
@@ -114,13 +116,13 @@ class TestLivingEntity:
             giraffe1 = Giraffe("giraffe1", Sex.MALE)
         except Exception:
             assert False, "Exception during Giraffe instantiation"
-        assert str(giraffe1) == '🦒 Giraffe giraffe1 ♂️ ❤️'
+        assert str(giraffe1) == '🦒 Giraffe giraffe1 ♂️ PV 10 ❤️'
 
         try:
             giraffe2 = Giraffe("giraffe2", Sex.FEMALE)
         except Exception:
             assert False, "Exception during Giraffe instantiation"
-        assert str(giraffe2) == '🦒 Giraffe giraffe2 ♀️ ❤️'
+        assert str(giraffe2) == '🦒 Giraffe giraffe2 ♀️ PV 10 ❤️'
 
     # Test we can create an object of Antelope class (check representation too)
     def test_antelope_instantiation_representation(self):
@@ -128,13 +130,13 @@ class TestLivingEntity:
             antelope1 = Antelope("antelope1", Sex.MALE)
         except Exception:
             assert False, "Exception during Antelope instantiation"
-        assert str(antelope1) == '𓃴 Antelope antelope1 ♂️ ❤️'
+        assert str(antelope1) == '𓃴 Antelope antelope1 ♂️ PV 10 ❤️'
 
         try:
             antelope2 = Antelope("antelope2", Sex.FEMALE)
         except Exception:
             assert False, "Exception during Antelope instantiation"
-        assert str(antelope2) == '𓃴 Antelope antelope2 ♀️ ❤️'
+        assert str(antelope2) == '𓃴 Antelope antelope2 ♀️ PV 10 ❤️'
 
     # Test an animal cannot eat himself
     def test_animal_non_autophagy(self):
@@ -203,3 +205,18 @@ class TestLivingEntity:
         assert not coyote1.can_eat(antelope2), "Coyote musn't eat dead Antelope"
         assert not tiger1.can_eat(lion2), "Tiger musn't eat dead Lion"
         assert not lion1.can_eat(elephant2), "Lion musn't eat dead Elephant"
+
+    # Test PV evolution during eating
+    def test_pv_evolution_during_eating(self):
+        antelope1 = Antelope("antelope1", Sex.MALE)
+        antelope2 = Antelope("antelope2", Sex.MALE)
+        tiger1 = Tiger("woods", Sex.MALE)
+        plant = Plant()
+
+        tiger1.eat(antelope1)
+        assert tiger1.life_point == 10 + PV_OBTAINED_CARNIVOROUS_BY_ANIMAL, f"Tiger PV must be {10 + PV_OBTAINED_CARNIVOROUS_BY_ANIMAL}"
+        assert antelope1.life_point == 10 - PV_LOSTS_ANIMAL_WHEN_EATEN, f"Antelope PV must be {10 - PV_LOSTS_ANIMAL_WHEN_EATEN}"
+
+        antelope2.eat(plant)
+        assert antelope2.life_point == 10 + PV_OBTAINED_HERBIVORE_BY_PLANT, f"Antelope PV must be {10 + PV_OBTAINED_HERBIVORE_BY_PLANT}"
+        assert plant.life_point == 10 - PV_LOSTS_PLANT_WHEN_EATEN, f"Plant PV must be {10 - PV_LOSTS_PLANT_WHEN_EATEN}"

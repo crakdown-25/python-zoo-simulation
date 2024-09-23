@@ -2,6 +2,16 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from random import shuffle
 
+PV_LOSTS_ANIMAL_BY_DAY = 1
+PV_LOSTS_ANIMAL_WHEN_EATEN = 4
+PV_OBTAINED_CARNIVOROUS_BY_ANIMAL = 5
+
+LIMIT_PV_BEFORE_EATEN = 5
+
+PV_OBTAINED_PLANT_BY_DAY = 1
+PV_LOSTS_PLANT_WHEN_EATEN = 2
+PV_OBTAINED_HERBIVORE_BY_PLANT = 3
+
 
 class Sex(Enum):
     """
@@ -26,14 +36,21 @@ class LivingEntity(ABC):
     __repr__(self):
         Abstact method (need to be implemented in subclasses)
 
-    do_actions(self, other_living_entity)
+    do_actions(self, other_living_entity):
         Do action(s) for the current living entity (need to be implemented in subclasses)
 
     is_alive:
         Getter for _is_alive attribute
 
+    life_point:
+        Getter for _life_point attribute
+
     gets_eaten(self):
-        Method called when LivingEntity has been eaten
+        Method called when the LivingEntity has been eaten. Return PV to add to eater
+        (need to be implemented in subclasses)
+
+    check_PV(self):
+        Return True is _life_point is >1, False otherwise (in this case self._is_alive is set to False too)
     """
 
     def __init__(self) -> None:
@@ -41,6 +58,7 @@ class LivingEntity(ABC):
         Empty constructor for LivingEntity
         """
         self._is_alive = True
+        self._life_point = 10
 
     @abstractmethod
     def __repr__(self) -> str:
@@ -65,11 +83,30 @@ class LivingEntity(ABC):
         """
         return self._is_alive
 
-    def gets_eaten(self) -> None:
+    @property
+    def life_point(self):
         """
-        Method called when the LivingEntity has been eaten
+        Getter for _life_point attribute
         """
-        self._is_alive = False
+        return self._life_point
+
+    @abstractmethod
+    def gets_eaten(self) -> int:
+        """
+        Method called when the LivingEntity has been eaten. Return PV to add to eater
+        (need to be implemented in subclasses)
+        """
+        return 0
+
+    def check_PV(self) -> bool:
+        """
+        Return True is _life_point is >1, False otherwise (in this case self._is_alive is set to False too)
+        """
+        if self._life_point <= 0:
+            self._is_alive = False
+            return False
+        else:
+            return True
 
 
 class Animal(LivingEntity):
@@ -119,7 +156,7 @@ class Animal(LivingEntity):
         """
         Return a string representation of the animal
         """
-        return f'{self.__class__.__name__} {self.name} {"♂️" if self.sex == Sex.MALE else "♀️"} {"❤️" if self.is_alive else "💀"}'
+        return f'{self.__class__.__name__} {self.name} {"♂️" if self.sex == Sex.MALE else "♀️"} PV {self._life_point} {"❤️" if self.is_alive else "💀"}'
 
     def do_actions(self, other_living_entity) -> None:
         """
@@ -127,18 +164,24 @@ class Animal(LivingEntity):
         """
         # Only if the animal is alive
         if self.is_alive:
-            # The animal needs to eat a plant or an another animal
-            living_entities = [le for le in other_living_entity if le.is_alive]
-            shuffle(living_entities)
-            has_already_eaten = False
-            while not has_already_eaten and len(living_entities):
-                another_living_entity = living_entities.pop()
-                if self.can_eat(another_living_entity):
-                    self.eat(another_living_entity)
-                    has_already_eaten = True
+            # First, the animal losts PV_LOSTS_ANIMAL_BY_DAY (1) PV
+            self._life_point -= PV_LOSTS_ANIMAL_BY_DAY
+            # Check PV and continue process only if animal is alive
+            if self.check_PV():
+                if self._life_point <= LIMIT_PV_BEFORE_EATEN:
 
-            if not has_already_eaten:
-                print(f"{self} couldn't eat :'(")
+                    # The animal needs to eat a plant or an another animal
+                    living_entities = [le for le in other_living_entity if le.is_alive]
+                    shuffle(living_entities)
+                    has_already_eaten = False
+                    while not has_already_eaten and len(living_entities):
+                        another_living_entity = living_entities.pop()
+                        if self.can_eat(another_living_entity):
+                            self.eat(another_living_entity)
+                            has_already_eaten = True
+
+                    if not has_already_eaten:
+                        print(f"{self} couldn't eat :'(")
 
     @abstractmethod
     def can_eat(self, other_living_entity) -> bool:
@@ -170,8 +213,16 @@ class Animal(LivingEntity):
         None
         """
         if self.can_eat(other_living_entity):
-            other_living_entity.gets_eaten()
+            self._life_point += other_living_entity.gets_eaten()
             print(f"{self} eat {other_living_entity}")
+
+    def gets_eaten(self) -> int:
+        """
+        Method called when the Animal has been eaten. Return PV to add to eater
+        """
+        self._life_point -= PV_LOSTS_ANIMAL_WHEN_EATEN
+        self.check_PV()
+        return PV_OBTAINED_CARNIVOROUS_BY_ANIMAL
 
 
 class Carnivorous(Animal):
@@ -566,6 +617,9 @@ class Plant(LivingEntity):
     do_actions(self, other_living_entity)
         Do action(s) for the current plant
 
+    gets_eaten(self)
+        Method called when the Plant has been eaten. Return PV to add to eater
+
     """
     def __init__(self) -> None:
         """
@@ -577,10 +631,20 @@ class Plant(LivingEntity):
         """
         Do action(s) for the current Plant
         """
-        pass  # No action for plant for the moment
+        if self.is_alive:
+            # Plant get PV_OBTAINED_PLANT_BY_DAY (1) PV per day
+            self._life_point += PV_OBTAINED_PLANT_BY_DAY
+
+    def gets_eaten(self) -> int:
+        """
+        Method called when the Plant has been eaten. Return PV to add to eater
+        """
+        self._life_point -= PV_LOSTS_PLANT_WHEN_EATEN
+        self.check_PV()
+        return PV_OBTAINED_HERBIVORE_BY_PLANT
 
     def __repr__(self) -> str:
         """
         Return a string
         """
-        return f"""🌿 Plant {"❤️" if self.is_alive else "💀"}"""
+        return f"""🌿 Plant PV {self._life_point} {"❤️" if self.is_alive else "💀"}"""
