@@ -1,5 +1,6 @@
 import re
 import json
+import pickle
 from typing import Dict
 from io import StringIO
 from .living_entity import LivingEntity, Plant, Sex, Animal, Lion, Tiger, Coyote, Elephant, Giraffe, Antelope
@@ -24,6 +25,10 @@ class Paddock():
     initialization()
         Allow user to make initialization of the paddock
 
+    load_simulation_from_binary()
+        Load all informations about a simulation from binary file.
+        Return True is loading is a success
+
     run_simulation()
         Run simulation of life in a paddock
 
@@ -39,6 +44,8 @@ class Paddock():
     create_report()
         Create a report for the paddock
 
+    all_animals_are_dead()
+        Return True is all Animal in lst_living_entity are dead, False otherwise
     """
 
     def __init__(self) -> None:
@@ -46,12 +53,21 @@ class Paddock():
         Construct all the necessary attributes for the paddock object.
         """
         self.lst_living_entity = []  # type: list[LivingEntity]
+        self.paddock_age = 0
+
+    def all_animals_are_dead(self) -> bool:
+        """
+        Return true is all Animal in lst_living_entity are dead, false otherwise
+        """
+        alive_animal = [le for le in self.lst_living_entity if le.is_alive]
+        return len(alive_animal) == 0
 
     def remove_all_plants_and_all_animals(self) -> None:
         """
         Remove all plants and animals in the paddock
         """
         self.lst_living_entity.clear()
+        self.paddock_age = 0
 
     def add_plant(self, plant: Plant) -> None:
         """
@@ -91,6 +107,8 @@ class Paddock():
         -------
         None
         """
+        # Increase paddock's age
+        self.paddock_age += 1
         lst_new_entities: list[LivingEntity] = []
         # Since story #3, we have to manage actions in the paddock
         for living_entity in self.lst_living_entity:
@@ -116,6 +134,7 @@ class Paddock():
         -------
         A string containing the report
         """
+        print(f"Paddock's age : {self.paddock_age} day(s)\n")
 
         alive_plants = [le for le in self.lst_living_entity if isinstance(le, Plant) and le.is_alive]
         dead_plants = [le for le in self.lst_living_entity if isinstance(le, Plant) and not le.is_alive]
@@ -146,6 +165,7 @@ class Paddock():
             print("Enter 'Lion/Tiger/Coyote/Elephant/Giraffe/Antelope animal_name m/f' to add an animal")
             print("Enter 's' to store current configuration to JSON file")
             print("Enter 'l' to load a JSON file as current configuration( WARNING existing living entity will be ereased)")
+            print("Enter 'lsimulation' to load a complete simulation from a binary file")
             print("Enter 'v' to view paddock content")
             print("Enter 'q' to stop initilization step")
             answer = input()
@@ -171,7 +191,7 @@ class Paddock():
                     except Exception as e:
                         print(f'{e} during JSON file "{filename}" writting')
                 case 'l':
-                    print("Enter JSON filename (it will be store in the current directory)")
+                    print("Enter JSON filename to load")
                     filename = input()
                     try:
                         with open(filename, 'r') as fpjson:
@@ -192,8 +212,13 @@ class Paddock():
                                         if k not in ['__name__', 'name', 'sex', '_age']:
                                             entity.__dict__[k] = v
                                     self.add_animal(entity)
+                            print(f"JSON file {filename} loaded")
                     except Exception as e:
                         print(f'{e} during JSON file "{filename}" loading')
+                case 'lsimulation':
+                    if self.load_simulation_from_binary():
+                        print("Loading simulation complete, let's continue\n")
+                        continue_initialization = False
                 case _:
                     if len(infos := answer.split(" ")) == 3 and \
                             infos[0] in animals_dict and \
@@ -210,6 +235,31 @@ class Paddock():
                         print("Unknown command, please retry\n")
         print("End of initialization step")
 
+    def load_simulation_from_binary(self) -> bool:
+        """
+        Load all informations about a simulation from binary file
+        """
+        print("Enter binary filename to load")
+        all_is_ok = False
+        filename = input()
+        another_paddock = None
+        try:
+            with open(filename, 'rb') as fpbinary:
+                all_is_ok = True
+                print(f"Binary file {filename} loaded")
+                another_paddock = pickle.load(fpbinary)
+
+        except Exception as e:
+            all_is_ok = False
+            print(f'{e} during binary file "{filename}" loading')
+
+        if all_is_ok and another_paddock:
+            self.paddock_age = another_paddock.paddock_age
+            self.lst_living_entity = another_paddock.lst_living_entity
+            return True
+        else:
+            return False
+
     def run_simulation(self) -> None:
         """
         Run simulation of life in a paddock
@@ -221,10 +271,30 @@ class Paddock():
         print("Let's start simulation step")
         continue_simulation = True
         while continue_simulation:
-            print("Enter number of day(s) you want to simulate (positiv integer) or q in order to quit")
+            print("Enter number of day(s) you want to simulate (positiv integer)")
+            print("You can enter 'u' to run the simulation until all animals will be dead (maybe the simulation will never stop...)")
+            print("You can enter 's' to store all informations about the simulation in a binary file")
+            print("You can enter 'l' to load all informations about the simulation from a binary file")
+            print("You can enter 'q' in order to quit")
             answer = input()
             if answer.lower() == 'q':
                 continue_simulation = False
+            elif answer.lower() == 'u':
+                while not self.all_animals_are_dead():
+                    self.and_one_more_day()
+                print("All animal are dead :(")
+            elif answer.lower() == 's':
+                print("Enter binary filename (it will be store in the current directory)")
+                filename = input()
+                try:
+                    with open(filename, 'wb') as fpbinary:
+                        pickle.dump(self, fpbinary)
+                        print(f"Binary file {filename} written")
+                except Exception as e:
+                    print(f'{e} during simulation storing in binary file "{filename}"')
+            elif answer.lower() == 'l':
+                if self.load_simulation_from_binary():
+                    print("Loading simulation complete, let's continue\n")
             else:
                 try:
                     nb_day_to_simulate = int(answer)

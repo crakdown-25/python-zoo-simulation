@@ -147,3 +147,41 @@ class TestZooSimulation:
         res = paddock.create_report()
 
         assert res == """Plant(s)\n2❤️\n0💀\nAnimal(s):\n	🦁 Lion lion1 ♂️ PV 10 Age 12 ❤️\n	🐅 Tiger woods ♂️ PV 10 Age 12 ❤️\n	🐘 Elephant Céleste ♀️ PV 10 Age 12 ❤️\n---------------\n""", "Paddock content is not correct"
+
+    # Test saving/loading complete simulation to binary file
+    def test_saving_loading_binary(self):
+        current_binary_file = 'test_saving.binary'
+        empty_binary_file = os.path.join('tests', 'empty.binary')
+
+        input_values = ['Plant', 'Plant', 'Lion lion1 m', 'Tiger woods m', 'Elephant Céleste f', 'q']
+
+        def mock_input(s=None):
+            return input_values.pop(0)
+
+        simuation_paddock.input = mock_input
+        paddock = simuation_paddock.Paddock()
+        paddock.initialization()
+
+        input_values = ['1', 's', current_binary_file, 'l', empty_binary_file, 'q']
+        simuation_paddock.input = mock_input
+        paddock.run_simulation()
+
+        assert paddock.paddock_age == 0, "Paddock age should be 0"
+        assert len(paddock.lst_living_entity) == 0, "Paddock len(lst_living_entity) should be 0"
+
+    # Test loading complete simulation to binary file
+    def test_loading_binary(self):
+        current_binary_file = 'test_saving.binary'
+        assert os.path.isfile(current_binary_file), f"File {current_binary_file} is missing"
+
+        input_values = ['lsimulation', current_binary_file, 'q']
+
+        def mock_input(s=None):
+            return input_values.pop(0)
+
+        simuation_paddock.input = mock_input
+        paddock = simuation_paddock.Paddock()
+        paddock.initialization()
+
+        assert paddock.paddock_age == 1, "Paddock age should be 1"
+        assert len(paddock.lst_living_entity) == 7, "Paddock len(lst_living_entity) should be 7"

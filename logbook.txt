@@ -108,3 +108,14 @@ living entity describe in JSON file
 
 Adding two automatic tests to check in load/save operation work well
 Adding try, except block to prevent IOError (filename is a directory, no right to write a file, ....)
+
+## Story #9
+
+Adding an attribute paddock_age in the paddock class. This attribute will be increased each time method and_one_more_day will be execute.
+Update create_report method to also display paddock_age information.
+
+Adding 'u' command into run_simulation step to run the simulation while at least one animal is alive (be carreful, the simulation can never ends)
+Adding 'l' command into run_simulation setp to load binary file from a previous saved simulation (all living entity are saved but paddock informations too)
+Adding 'lsimulation' command into initialization step to load binary file from a previous saved simulation (all living entity are saved but paddock informations too)
+
+'l' and 'lsimulation' commands erase all existing Plant, Animal of the Paddock to load information of the binary file
