@@ -34,5 +34,8 @@ When script is launched, user needs to enter commands to initialize paddock. Whe
 
 Then, user can simulate life is the paddock during X days. Paddock informations will be displayed after each day. Once again, user has to enter 'q' to finish this step
 
+## Docker images
 
+Docker images of each story are available on
+https://hub.docker.com/repository/docker/gcolle25000/python-zoo-simulation/general
 
