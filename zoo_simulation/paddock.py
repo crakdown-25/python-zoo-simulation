@@ -1,5 +1,7 @@
 import re
+import json
 from typing import Dict
+from io import StringIO
 from .living_entity import LivingEntity, Plant, Sex, Animal, Lion, Tiger, Coyote, Elephant, Giraffe, Antelope
 
 
@@ -16,10 +18,13 @@ class Paddock():
 
     Methods
     -------
-    initialization
+    remove_all_plants_and_all_animals()
+        Remove all plants and animals in the paddock
+
+    initialization()
         Allow user to make initialization of the paddock
 
-    run_simulation
+    run_simulation()
         Run simulation of life in a paddock
 
     add_plant(plant: Plant)
@@ -41,6 +46,12 @@ class Paddock():
         Construct all the necessary attributes for the paddock object.
         """
         self.lst_living_entity = []  # type: list[LivingEntity]
+
+    def remove_all_plants_and_all_animals(self) -> None:
+        """
+        Remove all plants and animals in the paddock
+        """
+        self.lst_living_entity.clear()
 
     def add_plant(self, plant: Plant) -> None:
         """
@@ -133,6 +144,9 @@ class Paddock():
             print("Enter 'Plant' to add a plant")
             print("Enter 'Plant X (X : a positive integer)' to add X plants")
             print("Enter 'Lion/Tiger/Coyote/Elephant/Giraffe/Antelope animal_name m/f' to add an animal")
+            print("Enter 's' to store current configuration to JSON file")
+            print("Enter 'l' to load a JSON file as current configuration( WARNING existing living entity will be ereased)")
+            print("Enter 'v' to view paddock content")
             print("Enter 'q' to stop initilization step")
             answer = input()
             match answer.lower():
@@ -141,6 +155,45 @@ class Paddock():
                 case "plant":
                     self.add_plant(Plant())
                     print("One plant added\n")
+                case 'v':
+                    print(self.create_report())
+                case 's':
+                    print("Enter JSON filename (it will be store in the current directory)")
+                    filename = input()
+                    try:
+                        with open(filename, 'w') as fpjson:
+                            for le in self.lst_living_entity:
+                                dict_to_serialize = dict(le.__dict__)
+                                dict_to_serialize['__name__'] = le.__class__.__name__
+                                le_json_dict = json.dumps(dict_to_serialize, default=str)
+                                fpjson.write(f"{le_json_dict}\n")
+                            print(f"JSON file {filename} written")
+                    except Exception as e:
+                        print(f'{e} during JSON file "{filename}" writting')
+                case 'l':
+                    print("Enter JSON filename (it will be store in the current directory)")
+                    filename = input()
+                    try:
+                        with open(filename, 'r') as fpjson:
+                            self.remove_all_plants_and_all_animals()
+                            lines = fpjson.readlines()
+                            for line in lines:
+                                io = StringIO(line)
+                                le_dict = json.load(io)
+                                if le_dict['__name__'] == 'Plant':
+                                    plant = Plant(age=le_dict['_age'])
+                                    for k, v in le_dict.items():
+                                        if k not in ['__name__', '_age']:
+                                            plant.__dict__[k] = v
+                                    self.add_plant(plant)
+                                else:
+                                    entity = animals_dict[le_dict['__name__']](le_dict['name'], Sex.MALE if le_dict['sex'] == 'Sex.MALE' else Sex.FEMALE, age=le_dict['_age'])
+                                    for k, v in le_dict.items():
+                                        if k not in ['__name__', 'name', 'sex', '_age']:
+                                            entity.__dict__[k] = v
+                                    self.add_animal(entity)
+                    except Exception as e:
+                        print(f'{e} during JSON file "{filename}" loading')
                 case _:
                     if len(infos := answer.split(" ")) == 3 and \
                             infos[0] in animals_dict and \

@@ -1,5 +1,6 @@
 from zoo_simulation.living_entity import LivingEntity, STANDARD_AGE_FOR_TEST
 import zoo_simulation.paddock as simuation_paddock
+import os
 
 
 class TestZooSimulation:
@@ -103,3 +104,46 @@ class TestZooSimulation:
         paddock.initialization()
         report = paddock.create_report()
         assert report == f"""Plant(s)\n2❤️\n0💀\nAnimal(s):\n\t𓃴 Antelope Jean ♂️ PV 10 Age {STANDARD_AGE_FOR_TEST} ❤️\n\t𓃴 Antelope Marie ♀️ PV 10 Age {STANDARD_AGE_FOR_TEST} ❤️\n---------------\n"""
+
+    # Test saving configuration
+    def test_saving_configuration(self):
+        reference_file = os.path.join('tests', 'Beauval.json')
+        current_json_file = 'test_saving.json'
+
+        input_values = ['Plant', 'Plant', 'Lion lion1 m', 'Tiger woods m', 'Elephant Céleste f', 's', current_json_file, 'q']
+
+        def mock_input(s=None):
+            return input_values.pop(0)
+
+        simuation_paddock.input = mock_input
+        paddock = simuation_paddock.Paddock()
+        paddock.initialization()
+
+        f = open(reference_file, "r").read()
+        f2 = open(current_json_file, "r").read()
+
+        test_result = f == f2
+
+        try:
+            os.remove(current_json_file)
+        except OSError:
+            pass
+
+        assert test_result, f"File {f} and {f2} are differents"
+
+    # Test loading configuration
+    def test_loading_configuration(self):
+        reference_file = os.path.join('tests', 'Beauval.json')
+
+        input_values = ['l', reference_file, 'q']
+
+        def mock_input(s=None):
+            return input_values.pop(0)
+
+        simuation_paddock.input = mock_input
+        paddock = simuation_paddock.Paddock()
+        paddock.initialization()
+
+        res = paddock.create_report()
+
+        assert res == """Plant(s)\n2❤️\n0💀\nAnimal(s):\n	🦁 Lion lion1 ♂️ PV 10 Age 12 ❤️\n	🐅 Tiger woods ♂️ PV 10 Age 12 ❤️\n	🐘 Elephant Céleste ♀️ PV 10 Age 12 ❤️\n---------------\n""", "Paddock content is not correct"

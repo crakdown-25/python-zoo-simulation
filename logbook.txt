@@ -95,3 +95,16 @@ to make a filter on Animal instance only...)
 
 Add mypy.ini file to prevent error message of names library (used to find firstname of the baby)
 Adding some automatic tests about baby (rules and "creation")
+
+## Story #7
+
+This story is missing, let's start Story #8
+
+## Story #8
+
+Adding remove_all_plants_and_all_animals in Paddock to clear list of all living entity
+Adding 'l' and 's' commands during the initialization step to load / save a configuration. Load another configuration will remove all living entity before importing
+living entity describe in JSON file
+
+Adding two automatic tests to check in load/save operation work well
+Adding try, except block to prevent IOError (filename is a directory, no right to write a file, ....)

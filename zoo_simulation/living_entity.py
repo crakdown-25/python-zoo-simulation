@@ -4,7 +4,6 @@ from enum import Enum
 from random import shuffle, randint, choice
 import names
 
-
 PV_LOSTS_ANIMAL_BY_DAY = 1
 PV_LOSTS_ANIMAL_WHEN_EATEN = 4
 PV_OBTAINED_CARNIVOROUS_BY_ANIMAL = 5
