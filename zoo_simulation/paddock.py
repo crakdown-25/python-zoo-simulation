@@ -46,6 +46,15 @@ class Paddock():
 
     all_animals_are_dead()
         Return True is all Animal in lst_living_entity are dead, False otherwise
+
+    def store_in_json()
+        Method to manage configuration storage in JSON file
+
+    load_from_json()
+        Method to manage configuration loading from JSON file
+
+    store_simulation_to_binary()
+        Save all informations about a simulation to a binary file
     """
 
     def __init__(self) -> None:
@@ -59,7 +68,7 @@ class Paddock():
         """
         Return true is all Animal in lst_living_entity are dead, false otherwise
         """
-        alive_animal = [le for le in self.lst_living_entity if le.is_alive]
+        alive_animal = [le for le in self.lst_living_entity if isinstance(le, Animal) and le.is_alive]
         return len(alive_animal) == 0
 
     def remove_all_plants_and_all_animals(self) -> None:
@@ -147,6 +156,52 @@ class Paddock():
         ret += "---------------\n"
         return ret
 
+    def store_in_json(self) -> None:
+        """
+        Method to manage configuration storage in JSON file
+        """
+        print("Enter JSON filename (it will be store in the current directory)")
+        filename = input()
+        try:
+            with open(filename, 'w') as fpjson:
+                for le in self.lst_living_entity:
+                    dict_to_serialize = dict(le.__dict__)
+                    dict_to_serialize['__name__'] = le.__class__.__name__
+                    le_json_dict = json.dumps(dict_to_serialize, default=str)
+                    fpjson.write(f"{le_json_dict}\n")
+                print(f"JSON file {filename} written")
+        except Exception as e:
+            print(f'{e} during JSON file "{filename}" writting')
+
+    def load_from_json(self, animals_dict) -> None:
+        """
+        Method to manage configuration loading from JSON file
+        """
+        print("Enter JSON filename to load")
+        filename = input()
+        try:
+            with open(filename, 'r') as fpjson:
+                self.remove_all_plants_and_all_animals()
+                lines = fpjson.readlines()
+                for line in lines:
+                    io = StringIO(line)
+                    le_dict = json.load(io)
+                    if le_dict['__name__'] == 'Plant':
+                        plant = Plant(age=le_dict['_age'])
+                        for k, v in le_dict.items():
+                            if k not in ['__name__', '_age']:
+                                plant.__dict__[k] = v
+                        self.add_plant(plant)
+                    else:
+                        entity = animals_dict[le_dict['__name__']](le_dict['name'], Sex.MALE if le_dict['sex'] == 'Sex.MALE' else Sex.FEMALE, age=le_dict['_age'])
+                        for k, v in le_dict.items():
+                            if k not in ['__name__', 'name', 'sex', '_age']:
+                                entity.__dict__[k] = v
+                        self.add_animal(entity)
+                print(f"JSON file {filename} loaded")
+        except Exception as e:
+            print(f'{e} during JSON file "{filename}" loading')
+
     def initialization(self) -> None:
         """
         Allow user to make initialization of the paddock
@@ -178,43 +233,9 @@ class Paddock():
                 case 'v':
                     print(self.create_report())
                 case 's':
-                    print("Enter JSON filename (it will be store in the current directory)")
-                    filename = input()
-                    try:
-                        with open(filename, 'w') as fpjson:
-                            for le in self.lst_living_entity:
-                                dict_to_serialize = dict(le.__dict__)
-                                dict_to_serialize['__name__'] = le.__class__.__name__
-                                le_json_dict = json.dumps(dict_to_serialize, default=str)
-                                fpjson.write(f"{le_json_dict}\n")
-                            print(f"JSON file {filename} written")
-                    except Exception as e:
-                        print(f'{e} during JSON file "{filename}" writting')
+                    self.store_in_json()
                 case 'l':
-                    print("Enter JSON filename to load")
-                    filename = input()
-                    try:
-                        with open(filename, 'r') as fpjson:
-                            self.remove_all_plants_and_all_animals()
-                            lines = fpjson.readlines()
-                            for line in lines:
-                                io = StringIO(line)
-                                le_dict = json.load(io)
-                                if le_dict['__name__'] == 'Plant':
-                                    plant = Plant(age=le_dict['_age'])
-                                    for k, v in le_dict.items():
-                                        if k not in ['__name__', '_age']:
-                                            plant.__dict__[k] = v
-                                    self.add_plant(plant)
-                                else:
-                                    entity = animals_dict[le_dict['__name__']](le_dict['name'], Sex.MALE if le_dict['sex'] == 'Sex.MALE' else Sex.FEMALE, age=le_dict['_age'])
-                                    for k, v in le_dict.items():
-                                        if k not in ['__name__', 'name', 'sex', '_age']:
-                                            entity.__dict__[k] = v
-                                    self.add_animal(entity)
-                            print(f"JSON file {filename} loaded")
-                    except Exception as e:
-                        print(f'{e} during JSON file "{filename}" loading')
+                    self.load_from_json(animals_dict)
                 case 'lsimulation':
                     if self.load_simulation_from_binary():
                         print("Loading simulation complete, let's continue\n")
@@ -260,6 +281,19 @@ class Paddock():
         else:
             return False
 
+    def store_simulation_to_binary(self) -> None:
+        """
+        Save all informations about a simulation to a binary file
+        """
+        print("Enter binary filename (it will be store in the current directory)")
+        filename = input()
+        try:
+            with open(filename, 'wb') as fpbinary:
+                pickle.dump(self, fpbinary)
+                print(f"Binary file {filename} written")
+        except Exception as e:
+            print(f'{e} during simulation storing in binary file "{filename}"')
+
     def run_simulation(self) -> None:
         """
         Run simulation of life in a paddock
@@ -284,14 +318,7 @@ class Paddock():
                     self.and_one_more_day()
                 print("All animal are dead :(")
             elif answer.lower() == 's':
-                print("Enter binary filename (it will be store in the current directory)")
-                filename = input()
-                try:
-                    with open(filename, 'wb') as fpbinary:
-                        pickle.dump(self, fpbinary)
-                        print(f"Binary file {filename} written")
-                except Exception as e:
-                    print(f'{e} during simulation storing in binary file "{filename}"')
+                self.store_simulation_to_binary()
             elif answer.lower() == 'l':
                 if self.load_simulation_from_binary():
                     print("Loading simulation complete, let's continue\n")
