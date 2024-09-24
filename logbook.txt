@@ -119,3 +119,6 @@ Adding 'l' command into run_simulation setp to load binary file from a previous 
 Adding 'lsimulation' command into initialization step to load binary file from a previous saved simulation (all living entity are saved but paddock informations too)
 
 'l' and 'lsimulation' commands erase all existing Plant, Animal of the Paddock to load information of the binary file
+
+Adding tests/empty.binary file that contains an empty simulation (no Plant, no Animal)
+Adding 2 automatic tests
