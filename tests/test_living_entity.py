@@ -3,7 +3,7 @@ from zoo_simulation.living_entity import Carnivorous, Herbivore
 from zoo_simulation.living_entity import Lion, Tiger, Coyote, Elephant, Giraffe, Antelope
 from zoo_simulation.living_entity import PV_LOSTS_ANIMAL_WHEN_EATEN, PV_OBTAINED_CARNIVOROUS_BY_ANIMAL
 from zoo_simulation.living_entity import PV_LOSTS_PLANT_WHEN_EATEN, PV_OBTAINED_HERBIVORE_BY_PLANT
-from zoo_simulation.living_entity import STANDARD_AGE_FOR_TEST
+from zoo_simulation.living_entity import STANDARD_AGE_FOR_TEST, TIME_BEFORE_NEW_BABY
 
 
 class TestLivingEntity:
@@ -266,3 +266,32 @@ class TestLivingEntity:
 
         assert not lion2.is_alive, "pion2 musn't be alive"
         assert not plant2.is_alive, "plant2 musn't be alive"
+
+    # Test making baby rules and creation
+    def tests_making_baby(self):
+        lion1 = Lion("lion1", Sex.MALE)
+        lion2 = Lion("lion2", Sex.MALE)
+
+        assert not lion1.can_make_baby(lion2), f"{lion1} and {lion2} cannot make a baby (2 male animals)"
+
+        tiger1 = Tiger("woods", Sex.MALE)
+        tiger2 = Tiger("tiger_female", Sex.FEMALE)
+
+        assert not lion1.can_make_baby(tiger2), f"{lion1} and {tiger2} cannot make a baby (2 different species)"
+
+        assert not tiger1.can_make_baby(tiger2), f"{tiger1} and {tiger2} cannot make a baby (day_before_baby > 0)"
+
+        for i in range(3):
+            tiger1.grow_old()
+            tiger2.grow_old()
+
+        assert tiger1.can_make_baby(tiger2), f"{tiger1} and {tiger2} should make a baby"
+
+        baby = tiger1.make_baby(tiger2)
+
+        assert tiger1.day_before_baby == TIME_BEFORE_NEW_BABY, f"day_before_baby != {TIME_BEFORE_NEW_BABY} for {tiger1}"
+        assert tiger2.day_before_baby == TIME_BEFORE_NEW_BABY, f"day_before_baby != {TIME_BEFORE_NEW_BABY} for {tiger2}"
+
+        assert isinstance(baby, Tiger), "baby should be a tiger"
+        assert baby.age == 0, "baby's age should be 0"
+        assert baby.day_before_baby == TIME_BEFORE_NEW_BABY, f"day_before_baby for baby {baby} should be {TIME_BEFORE_NEW_BABY}"

@@ -80,9 +80,19 @@ class Paddock():
         -------
         None
         """
+        lst_new_entities: list[LivingEntity] = []
         # Since story #3, we have to manage actions in the paddock
-        for living_entities in self.lst_living_entity:
-            living_entities.do_actions(self.lst_living_entity)
+        for living_entity in self.lst_living_entity:
+            new_entity = living_entity.do_actions(self.lst_living_entity)
+            if new_entity:
+                lst_new_entities.append(new_entity)
+
+        # In a second time, we add new_entity
+        for entity in lst_new_entities:
+            if isinstance(entity, Animal):
+                self.add_animal(entity)
+            elif isinstance(entity, Plant):
+                self.add_plant(entity)
 
         # Then display the report
         print(self.create_report())

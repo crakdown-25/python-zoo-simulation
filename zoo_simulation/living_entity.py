@@ -1,6 +1,9 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
-from random import shuffle, randint
+from random import shuffle, randint, choice
+import names
+
 
 PV_LOSTS_ANIMAL_BY_DAY = 1
 PV_LOSTS_ANIMAL_WHEN_EATEN = 4
@@ -16,6 +19,9 @@ MIN_AGE_FOR_ENTITY_ADDED = 0
 MAX_AGE_FOR_ENTITY_ADDED = 19
 DEATHING_AGE_IN_DEAY = 20
 STANDARD_AGE_FOR_TEST = 12
+
+MIN_PV_TO_SPLIT_PLANT = 10
+TIME_BEFORE_NEW_BABY = 3
 
 
 class Sex(Enum):
@@ -46,7 +52,7 @@ class LivingEntity(ABC):
     __repr__(self):
         Abstact method (need to be implemented in subclasses)
 
-    do_actions(self, other_living_entity):
+    do_actions(self, other_living_entities):
         Do action(s) for the current living entity (need to be implemented in subclasses)
 
     is_alive:
@@ -73,7 +79,7 @@ class LivingEntity(ABC):
         """
         self._is_alive = True
         self._life_point = 10
-        if age:
+        if age is not None:
             self._age = age
         else:
             self._age = STANDARD_AGE_FOR_TEST if self.testing_mode else randint(MIN_AGE_FOR_ENTITY_ADDED, MAX_AGE_FOR_ENTITY_ADDED)
@@ -95,7 +101,7 @@ class LivingEntity(ABC):
         return ""
 
     @abstractmethod
-    def do_actions(self, other_living_entity) -> None:
+    def do_actions(self, other_living_entities: list) -> None:
         """
         Do action(s) for the current living entity
         (need to be implemented in subclasses)
@@ -160,14 +166,18 @@ class Animal(LivingEntity):
     __repr__(self):
         Return a string to describe the current animal
 
-    do_actions(self, other_living_entity)
-        Do action(s) for the current animal
+    do_actions(self, other_living_entities)
+        Do action(s) for the current animal. If the Animal makes a baby, new animal will be return. In the othercase, None will be returned
 
     can_eat(self, other_living_entity):
         Method to check if animal can eat other living_entity
 
     eat(self, other_living_entity):
         Method to allow animal to eat (need to be implemented in subclasses)
+
+    grow_old(self):
+        Method called when the Animal grow_old. If LivingEntity's age >= DEATHING_AGE_IN_DEAY, the LivingEntity will dead
+        This method also decrease day_before_baby attribute until 0
     """
 
     def __init__(self, name: str, sex: Sex, age=None) -> None:
@@ -184,6 +194,7 @@ class Animal(LivingEntity):
         super().__init__(age=age)
         self.name = name
         self.sex = sex
+        self.day_before_baby = TIME_BEFORE_NEW_BABY
 
     def __repr__(self) -> str:
         """
@@ -191,10 +202,20 @@ class Animal(LivingEntity):
         """
         return f'{self.__class__.__name__} {self.name} {"♂️" if self.sex == Sex.MALE else "♀️"} PV {self._life_point} Age {self._age} {"❤️" if self.is_alive else "💀"}'
 
-    def do_actions(self, other_living_entity) -> None:
+    def grow_old(self) -> None:
         """
-        Do action(s) for the current animal
+        Method called when the Animal grow_old. If LivingEntity's age >= DEATHING_AGE_IN_DEAY, the LivingEntity will dead
+        This method also decrease day_before_baby attribute until 0
         """
+        super().grow_old()
+        if self.day_before_baby > 0:
+            self.day_before_baby -= 1
+
+    def do_actions(self, other_living_entities: list[LivingEntity]):
+        """
+        Do action(s) for the current animal. If the Animal makes a baby, new animal will be return. In the othercase, None will be returned
+        """
+        baby = None
         # Only if the animal is alive
         if self.is_alive:
             # First, the animal grow old
@@ -208,7 +229,7 @@ class Animal(LivingEntity):
                     if self._life_point <= LIMIT_PV_BEFORE_EATEN:
 
                         # The animal needs to eat a plant or an another animal
-                        living_entities = [le for le in other_living_entity if le.is_alive]
+                        living_entities = [le for le in other_living_entities if le.is_alive]
                         shuffle(living_entities)
                         has_already_eaten = False
                         while not has_already_eaten and len(living_entities):
@@ -219,6 +240,19 @@ class Animal(LivingEntity):
 
                         if not has_already_eaten:
                             print(f"{self} couldn't eat :'(")
+
+                    else:
+                        if self.day_before_baby == 0:
+                            # Try to make baby with another animal
+                            living_entities = [le for le in other_living_entities if le.is_alive]
+                            has_already_make_baby = False
+                            while not has_already_make_baby and len(living_entities):
+                                another_living_entity = living_entities.pop()
+                                if self.can_make_baby(another_living_entity):
+                                    baby = self.make_baby(another_living_entity)
+                                    has_already_make_baby = True
+
+        return baby
 
     @abstractmethod
     def can_eat(self, other_living_entity) -> bool:
@@ -260,6 +294,29 @@ class Animal(LivingEntity):
         self._life_point -= PV_LOSTS_ANIMAL_WHEN_EATEN
         self.check_PV()
         return PV_OBTAINED_CARNIVOROUS_BY_ANIMAL
+
+    def can_make_baby(self, other_living_entity) -> bool:
+        """
+        Check if current LivingEntity can make baby with other_living_entity
+        (need to be implemented in subclasses)
+        """
+        # In the next condition, we can user other_living_entity
+        # because if type(self)==type(other_living_entity), other_living_entity will necessarily have sex and day_before_baby attributes
+        return self.is_alive and other_living_entity.is_alive and \
+            type(self) == type(other_living_entity) and \
+            self.sex != other_living_entity.sex and other_living_entity.day_before_baby == 0
+
+    def make_baby(self, other_living_entity) -> LivingEntity:
+        """
+        Method that create a new animal
+        """
+        baby_sex = choice([Sex.FEMALE, Sex.MALE])
+        baby_name = names.get_first_name(gender='female' if baby_sex == Sex.FEMALE else 'male')
+        baby = self.__class__(baby_name, baby_sex, age=0)
+        print(f"New baby {baby} is born 👶")
+        self.day_before_baby = TIME_BEFORE_NEW_BABY
+        other_living_entity.day_before_baby = TIME_BEFORE_NEW_BABY
+        return baby
 
 
 class Carnivorous(Animal):
@@ -651,7 +708,7 @@ class Plant(LivingEntity):
     __repr__(self):
         Return a string to describe the current plant
 
-    do_actions(self, other_living_entity)
+    do_actions(self, other_living_entities)
         Do action(s) for the current plant
 
     gets_eaten(self)
@@ -664,10 +721,12 @@ class Plant(LivingEntity):
         """
         super().__init__(age=age)
 
-    def do_actions(self, other_living_entity) -> None:
+    def do_actions(self, other_living_entities: list[LivingEntity]):
         """
         Do action(s) for the current Plant
+        Can return a new plant (or None)
         """
+        other_plant = None
         if self.is_alive:
             # Plant grow old
             self.grow_old()
@@ -675,6 +734,14 @@ class Plant(LivingEntity):
             if self.is_alive:
                 # Plant get PV_OBTAINED_PLANT_BY_DAY (1) PV per day
                 self._life_point += PV_OBTAINED_PLANT_BY_DAY
+
+            if self.life_point >= MIN_PV_TO_SPLIT_PLANT:
+                other_plant = Plant(age=0)
+                other_plant._life_point = self.life_point // 2
+                self._life_point = self.life_point // 2
+                print(f"New plant {other_plant} is born 👶")
+
+        return other_plant
 
     def gets_eaten(self) -> int:
         """

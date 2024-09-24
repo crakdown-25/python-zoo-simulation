@@ -74,3 +74,24 @@ When script is launched "in production", LivingEntity's age will be random (betw
 
 Update automatic tests
 Adding tests about age managment
+
+## Story #6
+
+Update requirements.txt to add module names (this module allows random name generation)
+Rename other_living_entity to other_living_entities in do_actions methods
+
+Adding can_make_baby and make_baby methods in Animal class
+Adding MIN_PV_TO_SPLIT_PLANT constant to hold min PV before a plant split into twice
+do_actions method can return now a baby (or None most of the time)
+
+We add new babies after doing actions for all existing entities (and not gradually)
+
+Adding a new attribute for Animal to prevent baby boom (day_before_baby). Each time two animals make a baby. Time after baby attribute will be set to TIME_BEFORE_NEW_BABY (3)
+Each day, this attribute will be decrease and before making a baby, two animals need to have day_before_baby==0
+
+I have to remove type hint for can_make_baby and make_baby methods in Animal class. For other_living_entity parameter, if I set LivingEntity sex and day_before_baby
+won't be here (for plant) and if I set Animal type hint, the problem will be in do_actions call (even if I add ' and isinstance(le, Animal)' at the end of comprehension list
+to make a filter on Animal instance only...)
+
+Add mypy.ini file to prevent error message of names library (used to find firstname of the baby)
+Adding some automatic tests about baby (rules and "creation")
